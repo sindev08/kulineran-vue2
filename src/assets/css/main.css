@@ -1,3 +1,4 @@
+/* #4EB883 */
 #app {
   font-family: "Montserrat", sans-serif;
 }
@@ -11,4 +12,10 @@
 .badge-success {
   background-color: #4eb883;
 }
-/* #4EB883 */
+.card-product {
+  border-radius: 15px !important;
+}
+.card-img-top {
+  border-top-left-radius: 15px !important;
+  border-top-right-radius: 15px !important;
+}
