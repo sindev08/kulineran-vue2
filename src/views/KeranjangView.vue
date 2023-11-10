@@ -81,6 +81,30 @@
           </div>
         </div>
       </div>
+
+      <div class="row justify-content-end">
+        <div class="col-md-4">
+          <form v-on:submit.prevent class="mt-4">
+            <div class="form-group">
+              <label for="nama">Nama</label>
+              <input type="text" class="form-control" v-model="pesan.nama" />
+            </div>
+            <div class="form-group">
+              <label for="noMeja">Nomor Meja</label>
+              <textarea
+                class="form-control"
+                placeholder="Keterangan seperti : Pedas, Nasi Setengah"
+                v-model="pesan.noMeja"></textarea>
+            </div>
+            <button
+              type="submit"
+              class="btn btn-success float-right"
+              @click="checkout">
+              <b-icon-cart></b-icon-cart> Pesan
+            </button>
+          </form>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -97,10 +121,11 @@ export default {
   data() {
     return {
       keranjangs: [],
+      pesan: {},
     };
   },
   methods: {
-    setKeranjang(data) {
+    setKeranjangs(data) {
       this.keranjangs = data;
     },
     hapusKeranjang(id) {
@@ -120,14 +145,48 @@ export default {
       // Update data keranjangs
       axios
         .get("http://localhost:3000/keranjangs")
-        .then((response) => this.setKeranjang(response.data))
+        .then((response) => this.setKeranjangs(response.data))
         .catch((error) => console.log("Gagal", error));
+    },
+    checkout() {
+      console.log(this.pesan);
+      if (this.pesan.nama && this.pesan.noMeja) {
+        this.pesan.keranjangs = this.keranjangs;
+        axios
+          .post("http://localhost:3000/pesanans", this.pesan)
+          .then(() => {
+            // Hapus semua keranjang
+            this.keranjangs.map(function (item) {
+              return axios
+                .delete("http://localhost:3000/keranjangs/" + item.id)
+                .catch((error) => console.log("Gagal", error));
+            });
+
+            this.$router.push({ path: "/pesanan-sukses" });
+            this.$toast.success("Sukses Dipesan.", {
+              // optional options Object
+              type: "success",
+              position: "top",
+              duration: 3000,
+              dismissible: true,
+            });
+          })
+          .catch((error) => console.log("Gagal", error));
+      } else {
+        this.$toast.error("Nama dan Nomor Meja Harus diisi.", {
+          // optional options Object
+          type: "error",
+          position: "top",
+          duration: 3000,
+          dismissible: true,
+        });
+      }
     },
   },
   mounted() {
     axios
       .get("http://localhost:3000/keranjangs")
-      .then((response) => this.setKeranjang(response.data))
+      .then((response) => this.setKeranjangs(response.data))
       .catch((error) => console.log("Gagal", error));
   },
   computed: {
